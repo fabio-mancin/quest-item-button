@@ -1,0 +1,13 @@
+package-as: QuestItemButton
+
+# Libs are embedded directly in libs/, so no externals to fetch.
+enable-nolib-creation: no
+
+# Dev/repo files kept out of the packaged addon.
+ignore:
+  - .plans
+  - spec
+  - Makefile
+  - CLAUDE.md
+  - CONTRIBUTING.md
+  - .env.example

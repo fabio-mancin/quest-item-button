@@ -1,0 +1,11 @@
+# Per-machine dev config (WoW AddOns path) — never commit filesystem paths.
+.env
+
+# Planning scratch
+.plans/
+
+# Build artifacts
+build/
+*.zip
+
+.vscode/

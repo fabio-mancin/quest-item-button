@@ -1,0 +1,23 @@
+## Interface: 20506
+## Title: QuestItemButton
+## Notes: One-click button for usable quest items, shown only in the right zone.
+## Author: Fabio
+## Version: 0.1.0
+## SavedVariables: QuestItemButtonDB
+## X-Curse-Project-ID: 1606123
+
+# Embedded Ace3 (config UI)
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+
+Debug.lua
+Config.lua
+Data.lua
+Match.lua
+Scanner.lua
+Proximity.lua
+Button.lua
+Options.lua
+QuestItemButton.lua

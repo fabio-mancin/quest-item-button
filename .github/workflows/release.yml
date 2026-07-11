@@ -1,0 +1,24 @@
+name: Release
+
+# Tag a version to publish, e.g.:  git tag v0.1.0 && git push --tags
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # packager needs full history for the changelog
+
+      - name: Package and release to CurseForge
+        uses: BigWigsMods/packager@v2
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          # Optional extra targets — add secrets and uncomment to enable:
+          # WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+          # WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+          # GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}  # for a GitHub Release too
