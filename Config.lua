@@ -9,7 +9,9 @@ local DEFAULTS = {
     pos = nil,               -- {point, x, y}; nil = default center-ish anchor
     locked = false,          -- button drag locked
     hideStyle = false,       -- hide the Blizzard QuestItemButton ring (minimal look)
+    pinned = nil,            -- questID pinned via right-click menu; beats all pickers while carried
     proximity = true,        -- pick nearest item (Questie) when several are in-zone
+    questie = true,          -- allow Questie integration for proximity (else super-track/scan-order)
     disabledQuests = {},     -- [questID] = true
     debug = false,
 }
