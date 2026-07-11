@@ -12,6 +12,8 @@ addon.Scanner = Scanner
 -- returns list of { questID, itemID, itemName, headerZone, questIndex }
 function Scanner.scan()
     local candidates = {}
+    local emitted = {}      -- questID -> true, so byItem never double-adds
+    local questLog = {}     -- questID -> { index, headerZone } for byItem lookup
     local headerZone
     local numEntries = GetNumQuestLogEntries()
     Debug.log("bag", "scan: %d quest-log entries", numEntries)
@@ -22,6 +24,7 @@ function Scanner.scan()
             headerZone = title
             Debug.log("bag", "  header -> zone '%s'", tostring(title))
         else
+            questLog[questID] = { index = i, headerZone = headerZone }
             local link = GetQuestLogSpecialItemInfo(i)
             if link then
                 local itemID = tonumber(link:match("item:(%d+)"))
@@ -34,6 +37,7 @@ function Scanner.scan()
                         headerZone = headerZone,
                         questIndex = i,
                     }
+                    emitted[questID] = true
                     Debug.log("quest", "candidate %s (item %s, q%s) zone=%s",
                         itemName, tostring(itemID), tostring(questID), tostring(headerZone))
                 else
@@ -42,6 +46,25 @@ function Scanner.scan()
             end
         end
     end
+
+    -- byItem escape hatch: items the game never flags as usable (conditional-use
+    -- quest items). Emit a candidate when the item is carried and its quest is in
+    -- the log; zone is gated downstream off the quest's log header.
+    for itemID, questID in pairs(addon.Data.byItem or {}) do
+        local q = questLog[questID]
+        if q and not emitted[questID] and (GetItemCount(itemID) or 0) > 0 then
+            candidates[#candidates + 1] = {
+                questID = questID,
+                itemID = itemID,
+                itemName = GetItemInfo(itemID) or ("item:" .. itemID),
+                headerZone = q.headerZone,
+                questIndex = q.index,
+            }
+            Debug.log("quest", "byItem candidate item %s q%s zone=%s",
+                tostring(itemID), tostring(questID), tostring(q.headerZone))
+        end
+    end
+
     Debug.log("bag", "scan done: %d candidate(s)", #candidates)
     return candidates
 end

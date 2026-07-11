@@ -27,4 +27,5 @@ Data.overrides = {
 
 Data.byItem = {
     -- [32449] = 11162,  -- example: Luminrath's Mantle → quest
+    [28786] = 10256,     -- Apex's Crystal Focus → "Finding the Keymaster" (Netherstorm)
 }

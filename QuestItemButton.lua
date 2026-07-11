@@ -63,6 +63,24 @@ evaluate = function()
     local zone = GetRealZoneText()
     Debug.log("zone", "evaluate: zone='%s' subzone='%s'", tostring(zone), tostring(GetSubZoneText()))
     local candidates = Scanner.scan()
+
+    -- User pin (right-click menu) beats every picker while its item is carried.
+    -- A candidate exists only for a usable quest item in bags (see Scanner), so
+    -- pin presence in the list == "in bags"; ignores zone/proximity entirely.
+    local pinned = Config.get("pinned")
+    if pinned then
+        for _, c in ipairs(candidates) do
+            if c.questID == pinned then
+                Debug.log("quest", "pinned q%s -> %s (overrides pickers)", tostring(pinned), c.itemName)
+                Button.apply(c)
+                manageTicker(0)
+                return
+            end
+        end
+        Debug.log("quest", "pinned q%s not in bags -> normal resolve", tostring(pinned))
+    end
+
+    Proximity.useQuestie = Config.get("questie")
     local pickFn = Config.get("proximity") and Proximity.pick or nil
     local best, count = Match.resolve(candidates, zone, effectiveOverrides(), Debug.log, pickFn)
     Button.apply(best)

@@ -14,6 +14,11 @@ local Match = addon and addon.Match
 local Proximity = {}
 if addon then addon.Proximity = Proximity end
 
+-- Questie integration on/off. Set from Config; when false the ladder skips
+-- straight to super-track -> pickBest. Kept as a plain flag so Proximity stays
+-- WoW/Config-free and unit-testable.
+Proximity.useQuestie = true
+
 -- In-client Match comes from `addon`; the standalone self-check injects it here.
 function Proximity.setMatch(m) Match = m end
 
@@ -36,6 +41,7 @@ end
 
 -- Nearest by Questie objective distance. nil if Questie can't answer for any.
 local function byQuestieDistance(survivors)
+    if not Proximity.useQuestie then return nil end
     local QuestieDB, DistanceUtils = questie()
     if not QuestieDB then return nil end
 

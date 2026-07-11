@@ -81,10 +81,40 @@ local function showTooltip(self)
     GameTooltip:Show()
 end
 
+-- Right-click menu: list every usable quest item in bags; picking one pins it
+-- (Config.pinned) so it beats all pickers while carried. Re-picking the pinned
+-- item, or "Auto", clears the pin. Insecure UI — safe to open anytime.
+local menuFrame
+local function openMenu(anchor)
+    local Scanner = addon.Scanner
+    local pinned = Config.get("pinned")
+    local menu = { { text = "Show quest item", isTitle = true, notCheckable = true } }
+    for _, c in ipairs(Scanner.scan()) do
+        local qid = c.questID
+        menu[#menu + 1] = {
+            text = c.itemName,
+            checked = (pinned == qid),
+            func = function()
+                Config.set("pinned", (pinned == qid) and nil or qid)
+                if addon.refresh then addon.refresh() end
+            end,
+        }
+    end
+    if #menu == 1 then
+        menu[#menu + 1] = { text = "No usable quest items in bags", notCheckable = true, disabled = true }
+    elseif pinned then
+        menu[#menu + 1] = { text = "Auto (clear pin)", notCheckable = true,
+            func = function() Config.set("pinned", nil); if addon.refresh then addon.refresh() end end }
+    end
+    menuFrame = menuFrame or CreateFrame("Frame", "QuestItemButtonMenu", UIParent, "UIDropDownMenuTemplate")
+    EasyMenu(menu, menuFrame, anchor, 0, 0, "MENU")
+end
+
 local function create()
     button = CreateFrame("Button", "QuestItemButtonFrame", UIParent, "SecureActionButtonTemplate")
     button:SetSize(52, 52)
-    button:SetAttribute("type", "item")
+    -- type1 only: left-click fires the item; right-click stays free for our menu.
+    button:SetAttribute("type1", "item")
     -- Register both up AND down: SecureActionButton_OnClick fires the action on
     -- whichever edge the ActionButtonUseKeyDown CVar selects. Registering only
     -- "AnyUp" silently no-ops when that CVar is on. Both = fires exactly once.
@@ -116,6 +146,16 @@ local function create()
     -- diagnostic: confirms the secure click reaches the button (insecure, safe)
     button:SetScript("PreClick", function()
         Debug.log("button", "click -> item attr '%s'", tostring(button:GetAttribute("item")))
+    end)
+
+    -- Right-click opens the pick menu (fires no secure action: no type2 set).
+    -- Gate on the up edge: RegisterForClicks(AnyUp, AnyDown) fires PostClick on
+    -- BOTH edges, so without this the menu opens on press then toggles shut on
+    -- release -> looks broken.
+    button:SetScript("PostClick", function(self, mouseButton, down)
+        if mouseButton == "RightButton" and not down then
+            openMenu(self)
+        end
     end)
 
     -- tooltip: item (via the game's own special-item tooltip) + quest details
@@ -227,8 +267,11 @@ local function applyNow(state)
         Debug.log("button", "bind by name '%s' (not found in bags)", tostring(state.itemName))
     end
 
-    -- texture + charges come straight from the game for this quest index
+    -- texture + charges come straight from the game for this quest index.
+    -- byItem (unflagged) candidates return no special-item texture -> fall back
+    -- to the plain item icon so the button isn't blank.
     local _, texture, charges = GetQuestLogSpecialItemInfo(state.questIndex)
+    texture = texture or GetItemIcon(state.itemID)
     button.icon:SetTexture(texture)
     button.icon:SetVertexColor(1, 1, 1)
     if charges and charges > 1 then
