@@ -5,6 +5,16 @@ All notable changes to QuestItemButton are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); this project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.7.0] - 2026-07-12
+
+### Added
+- Auto-learn: when you use a usable quest item, the addon notes the current zone
+  and prints a paste-ready `[questID] = { zone = "..." }` line for zones it
+  doesn't already ship. Toggle `learn` (default on) under Behavior; `/qib learned`
+  dumps everything gathered so far. Suggestions persist in SavedVariables.
+- New WoW-free `Learn.lua` (`Learn.note`, dedupes + skips shipped quests) with
+  `spec/learn_spec.lua`.
+
 ## [0.6.0] - 2026-07-12
 
 ### Added

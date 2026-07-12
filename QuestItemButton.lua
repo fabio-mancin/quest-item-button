@@ -7,6 +7,7 @@ local Data = addon.Data
 local Button = addon.Button
 local Proximity = addon.Proximity
 local Complete = addon.Complete
+local Learn = addon.Learn
 
 -- Entry point: drive re-evaluation off the relevant events, coalesced into a
 -- single delayed tick, and hand off scan → match → button.
@@ -149,9 +150,32 @@ end
 -- Let the options panel trigger a re-evaluation after a setting changes.
 addon.refresh = scheduleEval
 
+-- Auto-learn: when the player uses a usable quest item, note the current zone
+-- and print a paste-ready override line the user can drop into Data.lua. Matches
+-- the fired spell against the quest items currently in the log.
+-- ponytail: rescans the (small) quest log on each player cast while learn is on;
+-- fine at BCC log sizes — cache an itemSpell->quest map if it ever shows up hot.
+local function observeCast(spellID)
+    if not Config.get("learn") or not spellID then return end
+    local store = Config.get("learned")
+    local knownFn = function(q) return Data.overrides[q] ~= nil end
+    for _, c in ipairs(Scanner.scan()) do
+        local _, itemSpellID = GetItemSpell(c.itemID)
+        if itemSpellID == spellID then
+            local zone = GetRealZoneText()
+            if Learn.note(store, c.questID, zone, knownFn) then
+                print(("|cffffd452QIB|r learned: [%d] = { zone = \"%s\" }  -- %s")
+                    :format(c.questID, tostring(zone), c.itemName))
+            end
+            return
+        end
+    end
+end
+
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 for _, e in ipairs(RE_EVAL_EVENTS) do
     frame:RegisterEvent(e)
 end
@@ -164,6 +188,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
     elseif event == "PLAYER_REGEN_ENABLED" then
         Debug.log("event", "combat ended -> flushing deferred button state")
         Button.flushPending()  -- apply anything deferred during combat
+    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
+        local unit, _, spellID = ...
+        if unit == "player" then observeCast(spellID) end
     else
         scheduleEval()
     end
@@ -191,6 +218,14 @@ SlashCmdList.QIB = function(msg)
         Config.set("hideStyle", arg == "off")
         Button.updateStyle()
         print("|cffffd452QIB|r style " .. (arg == "off" and "hidden (minimal)" or "shown"))
+    elseif cmd == "learned" then
+        local store = Config.get("learned")
+        local any = false
+        for questID, zone in pairs(store) do
+            any = true
+            print(("|cffffd452QIB|r [%d] = { zone = \"%s\" },"):format(questID, tostring(zone)))
+        end
+        if not any then print("|cffffd452QIB|r no learned suggestions yet") end
     elseif cmd == "disable" then
         local questID = tonumber(arg)
         if questID then
@@ -201,6 +236,6 @@ SlashCmdList.QIB = function(msg)
             print("|cffffd452QIB|r usage: /qib disable <questID>")
         end
     else
-        print("|cffffd452QIB|r /qib (or /qib config) opens options. Also: debug on|off | lock | unlock | style on|off | proximity on|off | disable <questID>")
+        print("|cffffd452QIB|r /qib (or /qib config) opens options. Also: debug on|off | lock | unlock | style on|off | proximity on|off | disable <questID> | learned")
     end
 end
