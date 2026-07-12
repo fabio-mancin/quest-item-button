@@ -54,6 +54,27 @@ describe("Match.resolve", function()
         assert.are.equal(2, count)
     end)
 
+    it("gateFn drops a zone-passing candidate but still counts it in-zone", function()
+        local a = cand(1, "A", "Netherstorm")
+        local b = cand(2, "B", "Netherstorm")
+        -- gate out quest 1, keep quest 2
+        local gateFn = function(questID) return questID ~= 1 end
+        local best, inRange, inZone =
+            Match.resolve({ a, b }, "Netherstorm", {}, nil, nil, gateFn)
+        assert.are.equal(b, best)   -- a gated out -> b wins
+        assert.are.equal(1, inRange)
+        assert.are.equal(2, inZone)
+    end)
+
+    it("gateFn dropping everything yields no winner but non-zero in-zone", function()
+        local a = cand(1, "A", "Netherstorm")
+        local best, inRange, inZone =
+            Match.resolve({ a }, "Netherstorm", {}, nil, nil, function() return false end)
+        assert.is_nil(best)
+        assert.are.equal(0, inRange)
+        assert.are.equal(1, inZone)
+    end)
+
     it("delegates winner choice to an injected pickFn", function()
         local a = cand(1, "A", "Netherstorm")
         local b = cand(2, "B", "Netherstorm")

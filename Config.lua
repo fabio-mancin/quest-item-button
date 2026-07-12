@@ -12,6 +12,8 @@ local DEFAULTS = {
     pinned = nil,            -- questID pinned via right-click menu; beats all pickers while carried
     proximity = true,        -- pick nearest item (Questie) when several are in-zone
     questie = true,          -- allow Questie integration for proximity (else super-track/scan-order)
+    distanceGate = false,    -- only show when within distanceYards of the objective (needs Questie)
+    distanceYards = 100,     -- gate radius in yards
     disabledQuests = {},     -- [questID] = true
     minimap = {},            -- LibDBIcon position/hide state (lib owns the contents)
     debug = false,

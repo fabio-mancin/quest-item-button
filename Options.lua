@@ -105,7 +105,26 @@ local function buildOptions()
                     questie = cfgToggle(2, "Questie integration", "questie",
                         "Use Questie for nearest-item picking. Off: proximity falls back to the super-tracked quest, then scan order.",
                         function() refresh() end),
-                    debug = cfgToggle(3, "Debug logging", "debug",
+                    distanceGate = {
+                        type = "toggle", order = 3, width = "full",
+                        name = "Only show near the objective\n|cff9d9d9dHide until you are within the yards below of the quest objective. Requires Questie.|r",
+                        desc = "Show the button only when you are within the distance below of the quest objective. Needs Questie for distance data; unavailable otherwise.",
+                        disabled = function() return not (Config.get("questie") and addon.Proximity.available()) end,
+                        get = function() return Config.get("distanceGate") end,
+                        set = function(_, val) Config.set("distanceGate", val); refresh() end,
+                    },
+                    distanceYards = {
+                        type = "range", order = 4, width = "full",
+                        name = "Distance (yards)",
+                        desc = "How close to the objective before the button appears.",
+                        min = 10, max = 300, step = 10,
+                        disabled = function()
+                            return not (Config.get("questie") and addon.Proximity.available() and Config.get("distanceGate"))
+                        end,
+                        get = function() return Config.get("distanceYards") end,
+                        set = function(_, val) Config.set("distanceYards", val); refresh() end,
+                    },
+                    debug = cfgToggle(5, "Debug logging", "debug",
                         "Print detailed debug messages to chat."),
                 },
             },

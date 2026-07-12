@@ -39,21 +39,35 @@ local function questie()
     return nil
 end
 
+-- Questie is loaded and its distance engine is reachable.
+function Proximity.available()
+    return questie() ~= nil
+end
+
+-- Nearest-spawn distance for a quest via Questie, or nil if unanswerable.
+-- Shared by the tiebreak (byQuestieDistance) and the distance gate (shell).
+function Proximity.questieDistance(questID)
+    local QuestieDB, DistanceUtils = questie()
+    if not QuestieDB then return nil end
+    local ok, dist = pcall(function()
+        local q = QuestieDB.GetQuest(questID)
+        if not q then return nil end
+        local _, _, _, d = DistanceUtils.GetNearestSpawnForQuest(q)
+        return d
+    end)
+    if ok then return dist end
+    return nil
+end
+
 -- Nearest by Questie objective distance. nil if Questie can't answer for any.
 local function byQuestieDistance(survivors)
     if not Proximity.useQuestie then return nil end
-    local QuestieDB, DistanceUtils = questie()
-    if not QuestieDB then return nil end
+    if not Proximity.available() then return nil end
 
     local best, bestDist
     for _, s in ipairs(survivors) do
-        local ok, dist = pcall(function()
-            local q = QuestieDB.GetQuest(s.questID)
-            if not q then return nil end
-            local _, _, _, d = DistanceUtils.GetNearestSpawnForQuest(q)
-            return d
-        end)
-        if ok and dist then
+        local dist = Proximity.questieDistance(s.questID)
+        if dist then
             log("quest", "  proximity q%s dist=%.0f", tostring(s.questID), dist)
             if not bestDist or dist < bestDist then
                 best, bestDist = s.candidate, dist

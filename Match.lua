@@ -29,12 +29,17 @@ Match.pickBest = pickBest
 --      (kept as a param so Match has zero WoW deps and stays unit-testable).
 -- pickFn: optional (survivors, overrides) -> candidate; defaults to pickBest.
 --         The proximity strategy is injected here from the shell (Questie soft-dep).
--- returns: winner candidate (or nil), number of in-zone survivors.
-function Match.resolve(candidates, currentZone, overrides, log, pickFn)
+-- gateFn: optional (questID) -> bool; a zone-passing candidate survives only if
+--         it returns true. Defaults to always-true. The distance gate is injected
+--         here from the shell (Questie soft-dep), keeping Match WoW-free.
+-- returns: winner candidate (or nil), in-range survivor count, in-zone count.
+function Match.resolve(candidates, currentZone, overrides, log, pickFn, gateFn)
     overrides = overrides or {}
     log = log or function() end
     pickFn = pickFn or pickBest
+    gateFn = gateFn or function() return true end
     local survivors = {}
+    local inZone = 0  -- zone-passing count before the distance gate
     for i, c in ipairs(candidates) do
         local o = overrides[c.questID]
         if o and o.disabled then
@@ -42,8 +47,13 @@ function Match.resolve(candidates, currentZone, overrides, log, pickFn)
         else
             local gateZone = (o and o.zone) or c.headerZone
             if gateZone and gateZone == currentZone then
-                log("quest", "  pass %s (q%s): zone '%s' matches", c.itemName, tostring(c.questID), tostring(gateZone))
-                survivors[#survivors + 1] = { candidate = c, questID = c.questID, order = i }
+                inZone = inZone + 1
+                if gateFn(c.questID) then
+                    log("quest", "  pass %s (q%s): zone '%s' matches", c.itemName, tostring(c.questID), tostring(gateZone))
+                    survivors[#survivors + 1] = { candidate = c, questID = c.questID, order = i }
+                else
+                    log("quest", "  drop %s (q%s): out of range", c.itemName, tostring(c.questID))
+                end
             else
                 log("quest", "  drop %s (q%s): zone '%s' != '%s'",
                     c.itemName, tostring(c.questID), tostring(gateZone), tostring(currentZone))
@@ -51,9 +61,9 @@ function Match.resolve(candidates, currentZone, overrides, log, pickFn)
         end
     end
     local best = pickFn(survivors, overrides)
-    log("quest", "resolve: %d candidate(s), %d in-zone -> %s",
-        #candidates, #survivors, best and best.itemName or "NONE")
-    return best, #survivors
+    log("quest", "resolve: %d candidate(s), %d in-zone, %d in-range -> %s",
+        #candidates, inZone, #survivors, best and best.itemName or "NONE")
+    return best, #survivors, inZone
 end
 
 return Match
