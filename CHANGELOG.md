@@ -5,6 +5,19 @@ All notable changes to QuestItemButton are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); this project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.6.0] - 2026-07-12
+
+### Added
+- Auto-hide when the quest is complete: once every objective of a quest is
+  finished, its item button is hidden (you no longer need it). Toggle
+  `hideComplete` (default on) under Behavior. Quests with no trackable
+  objectives are never auto-hidden.
+- New WoW-free `Complete.lua` (`Complete.isComplete`) with `spec/complete_spec.lua`.
+
+### Changed
+- The distance gate and the new completion gate now compose: a candidate must
+  pass every enabled gate to show. No behavior change when only one is on.
+
 ## [0.5.0] - 2026-07-12
 
 ### Added

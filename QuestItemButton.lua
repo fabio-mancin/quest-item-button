@@ -6,6 +6,7 @@ local Match = addon.Match
 local Data = addon.Data
 local Button = addon.Button
 local Proximity = addon.Proximity
+local Complete = addon.Complete
 
 -- Entry point: drive re-evaluation off the relevant events, coalesced into a
 -- single delayed tick, and hand off scan → match → button.
@@ -88,14 +89,44 @@ evaluate = function()
     Proximity.useQuestie = Config.get("questie")
     local pickFn = Config.get("proximity") and Proximity.pick or nil
 
+    -- questID -> questIndex, for gates that need the quest-log index.
+    local indexOf = {}
+    for _, c in ipairs(candidates) do indexOf[c.questID] = c.questIndex end
+
+    -- Build the survival gates. A candidate survives only if EVERY gate passes.
+    local gates = {}
+
     -- Distance gate: keep only items within distanceYards of their objective.
     -- Unknown distance (Questie can't answer) -> not gated out.
-    local gateFn
     if Config.get("distanceGate") then
         local yards = Config.get("distanceYards")
-        gateFn = function(questID)
+        gates[#gates + 1] = function(questID)
             local d = Proximity.questieDistance(questID)
             return d == nil or d <= yards
+        end
+    end
+
+    -- Completion gate: drop the item once all the quest's objectives are done.
+    if Config.get("hideComplete") then
+        gates[#gates + 1] = function(questID)
+            local idx = indexOf[questID]
+            if not idx then return true end
+            local lb = {}
+            for i = 1, GetNumQuestLeaderBoards(idx) do
+                local _, _, finished = GetQuestLogLeaderBoard(i, idx)
+                lb[i] = { finished = finished }
+            end
+            return not Complete.isComplete(lb)
+        end
+    end
+
+    local gateFn
+    if #gates > 0 then
+        gateFn = function(questID)
+            for _, g in ipairs(gates) do
+                if not g(questID) then return false end
+            end
+            return true
         end
     end
 

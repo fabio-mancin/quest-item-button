@@ -15,6 +15,7 @@ local DEFAULTS = {
     questie = true,          -- allow Questie integration for proximity (else super-track/scan-order)
     distanceGate = false,    -- only show when within distanceYards of the objective (needs Questie)
     distanceYards = 100,     -- gate radius in yards
+    hideComplete = true,     -- hide the button once all the quest's objectives are finished
     disabledQuests = {},     -- [questID] = true
     minimap = {},            -- LibDBIcon position/hide state (lib owns the contents)
     debug = false,
