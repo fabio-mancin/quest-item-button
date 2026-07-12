@@ -46,10 +46,13 @@ end
 local proximityTicker
 local evaluate  -- forward declaration (ticker + manageTicker reference it)
 
-local function manageTicker(count)
-    local want = Config.get("proximity") and count > 1
+local function manageTicker(inRange, inZone)
+    -- Poll while a tie needs breaking (2+ in-range) OR the distance gate is on
+    -- and there is anything in-zone to walk toward (even if none in-range yet).
+    local want = (Config.get("proximity") and inRange > 1)
+              or (Config.get("distanceGate") and (inZone or 0) >= 1)
     if want and not proximityTicker then
-        Debug.log("event", "proximity ticker START (%d in-zone)", count)
+        Debug.log("event", "proximity ticker START (%d in-range, %d in-zone)", inRange, inZone or 0)
         proximityTicker = C_Timer.NewTicker(2, function() evaluate() end)
     elseif not want and proximityTicker then
         Debug.log("event", "proximity ticker STOP")
@@ -82,9 +85,21 @@ evaluate = function()
 
     Proximity.useQuestie = Config.get("questie")
     local pickFn = Config.get("proximity") and Proximity.pick or nil
-    local best, count = Match.resolve(candidates, zone, effectiveOverrides(), Debug.log, pickFn)
+
+    -- Distance gate: keep only items within distanceYards of their objective.
+    -- Unknown distance (Questie can't answer) -> not gated out.
+    local gateFn
+    if Config.get("distanceGate") then
+        local yards = Config.get("distanceYards")
+        gateFn = function(questID)
+            local d = Proximity.questieDistance(questID)
+            return d == nil or d <= yards
+        end
+    end
+
+    local best, inRange, inZone = Match.resolve(candidates, zone, effectiveOverrides(), Debug.log, pickFn, gateFn)
     Button.apply(best)
-    manageTicker(count)
+    manageTicker(inRange, inZone)
 end
 
 -- coalesce bursts of events into one scan
