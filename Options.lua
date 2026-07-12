@@ -71,6 +71,13 @@ local function buildOptions()
                         desc = "Move the button back to the default location.",
                         func = function() Button.resetPosition() end,
                     },
+                    minimap = {
+                        type = "toggle", order = 4, name = "Show minimap button", width = "full",
+                        desc = "Toggle the minimap button (right-click it to hide).",
+                        hidden = function() return not addon.MinimapButton end,
+                        get = function() return addon.MinimapButton.isShown() end,
+                        set = function(_, val) addon.MinimapButton.setShown(val) end,
+                    },
                 },
             },
             behavior = {

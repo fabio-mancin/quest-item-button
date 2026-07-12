@@ -13,6 +13,7 @@ local DEFAULTS = {
     proximity = true,        -- pick nearest item (Questie) when several are in-zone
     questie = true,          -- allow Questie integration for proximity (else super-track/scan-order)
     disabledQuests = {},     -- [questID] = true
+    minimap = {},            -- LibDBIcon position/hide state (lib owns the contents)
     debug = false,
 }
 
