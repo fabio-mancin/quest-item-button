@@ -118,6 +118,17 @@ describe("Match.resolve", function()
         assert.are.equal(a, Match.resolve({ a, b }, "Netherstorm", overrides))
     end)
 
+    it("matches a subzone header against the current subzone", function()
+        -- "Fires over Skettis": logged under subzone "Skettis", real zone is Terokkar.
+        local c = cand(1, "Torch", "Skettis")
+        assert.are.equal(c, Match.resolve({ c }, "Terokkar Forest", {}, nil, nil, nil, "Skettis"))
+    end)
+
+    it("subzone match is additive: no subzone -> still gated out", function()
+        local c = cand(1, "Torch", "Skettis")
+        assert.is_nil(Match.resolve({ c }, "Terokkar Forest", {}))
+    end)
+
     it("calls the log callback (does not require it)", function()
         local c = cand(1, "Mantle", "Netherstorm")
         local calls = 0

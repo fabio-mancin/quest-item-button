@@ -32,8 +32,11 @@ Match.pickBest = pickBest
 -- gateFn: optional (questID) -> bool; a zone-passing candidate survives only if
 --         it returns true. Defaults to always-true. The distance gate is injected
 --         here from the shell (Questie soft-dep), keeping Match WoW-free.
+-- currentSubZone: optional GetSubZoneText() string. Some quests are logged under a
+--         subzone header (e.g. "Skettis") whose parent zone GetRealZoneText() reports
+--         instead ("Terokkar Forest"); the gate passes on either match.
 -- returns: winner candidate (or nil), in-range survivor count, in-zone count.
-function Match.resolve(candidates, currentZone, overrides, log, pickFn, gateFn)
+function Match.resolve(candidates, currentZone, overrides, log, pickFn, gateFn, currentSubZone)
     overrides = overrides or {}
     log = log or function() end
     pickFn = pickFn or pickBest
@@ -46,7 +49,7 @@ function Match.resolve(candidates, currentZone, overrides, log, pickFn, gateFn)
             log("quest", "  drop %s (q%s): disabled", c.itemName, tostring(c.questID))
         else
             local gateZone = (o and o.zone) or c.headerZone
-            if gateZone and gateZone == currentZone then
+            if gateZone and (gateZone == currentZone or gateZone == currentSubZone) then
                 inZone = inZone + 1
                 if gateFn(c.questID) then
                     log("quest", "  pass %s (q%s): zone '%s' matches", c.itemName, tostring(c.questID), tostring(gateZone))
@@ -55,8 +58,9 @@ function Match.resolve(candidates, currentZone, overrides, log, pickFn, gateFn)
                     log("quest", "  drop %s (q%s): out of range", c.itemName, tostring(c.questID))
                 end
             else
-                log("quest", "  drop %s (q%s): zone '%s' != '%s'",
-                    c.itemName, tostring(c.questID), tostring(gateZone), tostring(currentZone))
+                log("quest", "  drop %s (q%s): zone '%s' != '%s'/'%s'",
+                    c.itemName, tostring(c.questID), tostring(gateZone),
+                    tostring(currentZone), tostring(currentSubZone))
             end
         end
     end

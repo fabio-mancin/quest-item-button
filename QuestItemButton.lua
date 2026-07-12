@@ -64,7 +64,8 @@ end
 evaluate = function()
     evalPending = false
     local zone = GetRealZoneText()
-    Debug.log("zone", "evaluate: zone='%s' subzone='%s'", tostring(zone), tostring(GetSubZoneText()))
+    local subzone = GetSubZoneText()
+    Debug.log("zone", "evaluate: zone='%s' subzone='%s'", tostring(zone), tostring(subzone))
     local candidates = Scanner.scan()
 
     -- User pin (right-click menu) beats every picker while its item is carried.
@@ -97,7 +98,7 @@ evaluate = function()
         end
     end
 
-    local best, inRange, inZone = Match.resolve(candidates, zone, effectiveOverrides(), Debug.log, pickFn, gateFn)
+    local best, inRange, inZone = Match.resolve(candidates, zone, effectiveOverrides(), Debug.log, pickFn, gateFn, subzone)
     Button.apply(best)
     manageTicker(inRange, inZone)
 end
