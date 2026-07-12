@@ -5,6 +5,20 @@ All notable changes to QuestItemButton are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); this project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-07-12
+
+### Added
+- Bundled quest dataset is now toggleable: `bundledData` option (default on)
+  under Behavior. Off = only your own learned/manual overrides are used; the
+  shipped `Data.overrides`/`byItem` and its `byItem` bag scan are skipped.
+- `spec/data_spec.lua`: structural validator for the shipped dataset (key types,
+  no unknown override keys, no disabled-yet-zoned contradictions, byItem points
+  at non-disabled quests). Guards the table against malformed edits.
+
+### Changed
+- `Data.lua` is now `require()`-able (guards `addon`, returns the table) like
+  `Match.lua`/`Proximity.lua`, so the dataset is unit-testable outside the client.
+
 ## [0.4.2] - 2026-07-12
 
 ### Fixed

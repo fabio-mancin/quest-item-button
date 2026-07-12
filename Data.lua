@@ -18,8 +18,10 @@ local addonName, addon = ...
 --   }
 --   byItem[itemID] = questID     -- escape hatch: map an item to a quest manually
 
+-- addon is nil when required outside the client (validator spec); guard it so
+-- Data.lua stays require()-able like Match.lua / Proximity.lua.
 local Data = {}
-addon.Data = Data
+if addon then addon.Data = Data end
 
 Data.overrides = {
     -- [11162] = { zone = "Netherstorm" },  -- example: Conjurer Luminrath
@@ -33,3 +35,5 @@ Data.byItem = {
     -- [32449] = 11162,  -- example: Luminrath's Mantle → quest
     [28786] = 10256,     -- Apex's Crystal Focus → "Finding the Keymaster" (Netherstorm)
 }
+
+return Data

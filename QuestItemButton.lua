@@ -24,12 +24,13 @@ local evalPending = false
 -- Overlay the user's per-quest disables (Config) onto the static Data table so
 -- Match stays pure (it only knows about `overrides[q].disabled`).
 local function effectiveOverrides()
+    local base = Config.get("bundledData") and Data.overrides or {}
     local disabled = Config.get("disabledQuests")
     if not next(disabled) then
-        return Data.overrides
+        return base
     end
     local merged = {}
-    for q, o in pairs(Data.overrides) do
+    for q, o in pairs(base) do
         merged[q] = o
     end
     for q in pairs(disabled) do

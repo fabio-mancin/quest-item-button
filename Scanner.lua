@@ -50,7 +50,9 @@ function Scanner.scan()
     -- byItem escape hatch: items the game never flags as usable (conditional-use
     -- quest items). Emit a candidate when the item is carried and its quest is in
     -- the log; zone is gated downstream off the quest's log header.
-    for itemID, questID in pairs(addon.Data.byItem or {}) do
+    -- Skipped entirely when the bundled dataset is toggled off.
+    local byItem = addon.Config.get("bundledData") and (addon.Data.byItem or {}) or {}
+    for itemID, questID in pairs(byItem) do
         local q = questLog[questID]
         if q and not emitted[questID] and (GetItemCount(itemID) or 0) > 0 then
             candidates[#candidates + 1] = {

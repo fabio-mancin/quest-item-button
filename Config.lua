@@ -10,6 +10,7 @@ local DEFAULTS = {
     locked = false,          -- button drag locked
     hideStyle = false,       -- hide the Blizzard QuestItemButton ring (minimal look)
     pinned = nil,            -- questID pinned via right-click menu; beats all pickers while carried
+    bundledData = true,      -- use the shipped Data.overrides/byItem table (off = user data only)
     proximity = true,        -- pick nearest item (Questie) when several are in-zone
     questie = true,          -- allow Questie integration for proximity (else super-track/scan-order)
     distanceGate = false,    -- only show when within distanceYards of the objective (needs Questie)
