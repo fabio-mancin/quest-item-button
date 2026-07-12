@@ -1,6 +1,7 @@
 local addonName, addon = ...
 local Debug = addon.Debug
 local Config = addon.Config
+local Alert = addon.Alert
 
 -- WoW shell: our own secure action button styled like the Retail
 -- QuestItemButton. Fires the bag quest item via type="item".
@@ -244,7 +245,21 @@ end
 
 -- ---- state application --------------------------------------------------
 
+-- Brief attention pull when a (new) item starts showing. Insecure regions only.
+local function fireAlert()
+    if Config.get("alertGlow") and ActionButton_ShowOverlayGlow then
+        ActionButton_ShowOverlayGlow(button)
+        C_Timer.After(1.5, function()
+            if ActionButton_HideOverlayGlow then ActionButton_HideOverlayGlow(button) end
+        end)
+    end
+    if Config.get("alertSound") and SOUNDKIT then
+        PlaySound(SOUNDKIT.MAP_PING)
+    end
+end
+
 local function applyNow(state)
+    local prevID = currentState and currentState.questID
     currentState = state
     lastInRange = nil
     if not state then
@@ -283,6 +298,9 @@ local function applyNow(state)
     Button.updateCooldown()
     button.rangeTimer = 0
     button:Show()
+    if Alert.shouldAlert(prevID, state.questID) then
+        fireAlert()
+    end
     Debug.log("button", "show %s (q%s)", state.itemName, tostring(state.questID))
 end
 

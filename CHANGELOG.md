@@ -5,6 +5,15 @@ All notable changes to QuestItemButton are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); this project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.8.0] - 2026-07-12
+
+### Added
+- Appear alert: the button briefly glows (and optionally plays a sound) when a
+  new quest item becomes usable. Toggles `alertGlow` (default on) and
+  `alertSound` (default off) under Display. Re-showing the same item does not
+  re-alert; hiding never alerts.
+- New WoW-free `Alert.lua` (`Alert.shouldAlert`) with `spec/alert_spec.lua`.
+
 ## [0.7.0] - 2026-07-12
 
 ### Added

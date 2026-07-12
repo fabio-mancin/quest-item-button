@@ -9,6 +9,8 @@ local DEFAULTS = {
     pos = nil,               -- {point, x, y}; nil = default center-ish anchor
     locked = false,          -- button drag locked
     hideStyle = false,       -- hide the Blizzard QuestItemButton ring (minimal look)
+    alertGlow = true,        -- glow the button briefly when it first appears
+    alertSound = false,      -- play a sound when the button first appears
     pinned = nil,            -- questID pinned via right-click menu; beats all pickers while carried
     bundledData = true,      -- use the shipped Data.overrides/byItem table (off = user data only)
     proximity = true,        -- pick nearest item (Questie) when several are in-zone

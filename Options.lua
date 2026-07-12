@@ -93,6 +93,10 @@ local function buildOptions()
                         get = function() return addon.MinimapButton.isShown() end,
                         set = function(_, val) addon.MinimapButton.setShown(val) end,
                     },
+                    alertGlow = cfgToggle(5, "Glow when button appears", "alertGlow",
+                        "Briefly glow the button when a new quest item becomes usable."),
+                    alertSound = cfgToggle(6, "Play a sound when button appears", "alertSound",
+                        "Also play a short sound when a new quest item becomes usable."),
                 },
             },
             behavior = {
