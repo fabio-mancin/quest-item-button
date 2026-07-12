@@ -59,6 +59,28 @@ function Proximity.questieDistance(questID)
     return nil
 end
 
+-- Best-effort UI map + normalized coords of the nearest quest spawn via Questie,
+-- for dropping a waypoint. Returns uiMapID, x(0-1), y(0-1) or nil. Heavily
+-- guarded — Questie's return shape isn't verifiable offline, so this may need
+-- in-game tuning; on any mismatch it returns nil and the waypoint is simply
+-- not set (fails safe).
+function Proximity.questieSpawn(questID)
+    local QuestieDB, DistanceUtils = questie()
+    if not QuestieDB then return nil end
+    local ok, mapID, x, y = pcall(function()
+        local q = QuestieDB.GetQuest(questID)
+        if not q then return nil end
+        local spawn, zoneId = DistanceUtils.GetNearestSpawnForQuest(q)
+        if not (spawn and zoneId and spawn[1] and spawn[2]) then return nil end
+        local ZoneDB = QuestieLoader:ImportModule("ZoneDB")
+        local uiMapID = ZoneDB and ZoneDB.GetUiMapIdByAreaId and ZoneDB:GetUiMapIdByAreaId(zoneId)
+        if not uiMapID then return nil end
+        return uiMapID, spawn[1] / 100, spawn[2] / 100  -- Questie coords are 0-100
+    end)
+    if ok and mapID then return mapID, x, y end
+    return nil
+end
+
 -- Nearest by Questie objective distance. nil if Questie can't answer for any.
 local function byQuestieDistance(survivors)
     if not Proximity.useQuestie then return nil end

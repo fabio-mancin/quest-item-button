@@ -2,7 +2,7 @@
 ## Title: QuestItemButton
 ## Notes: One-click button for usable quest items, shown only in the right zone.
 ## Author: Fabio
-## Version: 0.9.0
+## Version: 0.10.0
 ## SavedVariables: QuestItemButtonDB
 ## X-Curse-Project-ID: 1606123
 
@@ -26,6 +26,7 @@ Learn.lua
 Alert.lua
 Keybind.lua
 Proximity.lua
+Waypoint.lua
 Button.lua
 Options.lua
 MinimapButton.lua

@@ -144,6 +144,18 @@ local function buildOptions()
                     hideComplete = cfgToggle(6, "Hide when quest complete", "hideComplete",
                         "Once all of the quest's objectives are finished, hide the button — you don't need the item anymore.",
                         function() refresh() end),
+                    waypoint = {
+                        type = "toggle", order = 6.5, width = "full",
+                        name = "Waypoint to the objective\n|cff9d9d9dDrop a map waypoint at the quest objective while the button shows (TomTom if installed, else the native waypoint). Needs Questie for coordinates.|r",
+                        desc = "Drop a map waypoint at the objective while the button shows. Uses TomTom if installed, else the native user waypoint. Needs Questie for coordinates.",
+                        disabled = function() return not (addon.Waypoint.available() and addon.Proximity.available()) end,
+                        get = function() return Config.get("waypoint") end,
+                        set = function(_, val)
+                            Config.set("waypoint", val)
+                            if not val then addon.Waypoint.clear() end
+                            refresh()
+                        end,
+                    },
                     learn = cfgToggle(7, "Learn quest-item zones", "learn",
                         "Watch where you actually use quest items and print a paste-ready override suggestion for zones the addon doesn't know. See /qib learned."),
                     debug = cfgToggle(8, "Debug logging", "debug",

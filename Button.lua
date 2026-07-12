@@ -276,6 +276,7 @@ local function applyNow(state)
             Debug.log("button", "hide (no match)")
         end
         button:Hide()
+        if Config.get("waypoint") then addon.Waypoint.clear() end
         return
     end
     -- Bind to the concrete bag slot (exact right-click equivalent). Binding by
@@ -307,8 +308,17 @@ local function applyNow(state)
     Button.updateCooldown()
     button.rangeTimer = 0
     button:Show()
+    -- Only act on an actual item change (not every proximity re-apply).
     if Alert.shouldAlert(prevID, state.questID) then
         fireAlert()
+        if Config.get("waypoint") then
+            addon.Waypoint.clear()
+            local m, x, y = addon.Proximity.questieSpawn(state.questID)
+            if m then
+                addon.Waypoint.set(m, x, y, state.itemName)
+                Debug.log("button", "waypoint set for q%s", tostring(state.questID))
+            end
+        end
     end
     Debug.log("button", "show %s (q%s)", state.itemName, tostring(state.questID))
 end

@@ -19,6 +19,7 @@ local DEFAULTS = {
     distanceGate = false,    -- only show when within distanceYards of the objective (needs Questie)
     distanceYards = 100,     -- gate radius in yards
     hideComplete = true,     -- hide the button once all the quest's objectives are finished
+    waypoint = false,        -- drop a map waypoint at the objective while shown (TomTom/native)
     disabledQuests = {},     -- [questID] = true
     learn = true,            -- watch quest-item use and suggest override entries
     learned = {},            -- [questID] = zone; suggestions gathered from actual use

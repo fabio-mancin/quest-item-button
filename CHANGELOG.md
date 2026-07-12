@@ -5,6 +5,18 @@ All notable changes to QuestItemButton are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); this project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.10.0] - 2026-07-12
+
+### Added
+- Optional waypoint to the objective: while the button shows, drop a map
+  waypoint at the quest objective (TomTom if installed, else the native user
+  waypoint). Toggle `waypoint` (default off) under Behavior; greyed out unless
+  Questie (for coordinates) and a waypoint backend are available. Set once per
+  item change, cleared on hide.
+- New `Waypoint.lua`; its pure `provider` ladder is unit-tested
+  (`spec/waypoint_spec.lua`). The Questie coordinate lookup
+  (`Proximity.questieSpawn`) is best-effort and guarded — verify/tune in-game.
+
 ## [0.9.0] - 2026-07-12
 
 ### Added
