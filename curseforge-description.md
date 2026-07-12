@@ -8,8 +8,14 @@
 
 - Auto-detects usable quest items in your bags, zone-gated so the button only shows where the item works.
 - Catches conditional-use items the game never flags (e.g. Apex's Crystal Focus in Netherstorm).
+- Auto-hides once the quest's objectives are all complete — the item disappears when you no longer need it.
+- Appear alert: the button briefly glows (optional sound) when a new quest item becomes usable.
+- Bindable trigger key to fire the item, same as clicking the button.
+- Optional map waypoint to the objective (TomTom if installed, else the native waypoint; needs Questie for coordinates).
 - Right-click pick menu: pin an item so it beats all pickers while carried ("Auto" clears the pin).
 - Optional proximity gate — show the button only within X yards of the objective (needs Questie).
+- Per-character profiles — switch, copy, delete, and reset in the options panel.
+- Auto-learn: records where you actually use quest items and suggests zone overrides (`/qib learned`); bundled dataset can be toggled off.
 - Retail-style minimap button + full options panel with inline help.
 - Questie integration for super-track / nearest-item tiebreaks.
 
@@ -20,6 +26,27 @@
 Include your client version, the quest, and the item — it helps a lot.
 
 ## Changelog
+
+### 0.11.0
+- **Added:** Per-character configuration profiles — switch, create, copy, delete, and reset in the new Profiles tab. A `/reload` fully applies a switch.
+
+### 0.10.0
+- **Added:** Optional waypoint to the objective while the button shows (TomTom if installed, else the native waypoint; needs Questie for coordinates).
+
+### 0.9.0
+- **Added:** Optional trigger keybind to fire the quest item.
+
+### 0.8.0
+- **Added:** Appear alert — the button briefly glows (optional sound) when a new quest item becomes usable.
+
+### 0.7.0
+- **Added:** Auto-learn — records where you use quest items and prints paste-ready zone overrides (`/qib learned`).
+
+### 0.6.0
+- **Added:** Auto-hide once all of a quest's objectives are complete.
+
+### 0.5.0
+- **Added:** Toggle for the bundled quest dataset (off = only your own learned/manual overrides).
 
 ### 0.4.2
 - **Fixed:** Skettis fire quest (11008) now gated on the whole Terokkar Forest zone so it stays available as the subzone flips while you fly.
