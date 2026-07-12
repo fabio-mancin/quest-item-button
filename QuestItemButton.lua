@@ -184,10 +184,12 @@ frame:SetScript("OnEvent", function(self, event, ...)
     Debug.log("event", "%s(%s)", event, strjoin(", ", tostringall(...)))
     if event == "PLAYER_LOGIN" then
         print("QuestItemButton initialized.")
+        Button.applyKeybind()  -- SavedVariables now loaded
         scheduleEval()
     elseif event == "PLAYER_REGEN_ENABLED" then
         Debug.log("event", "combat ended -> flushing deferred button state")
         Button.flushPending()  -- apply anything deferred during combat
+        Button.applyKeybind()  -- reapply any keybind change deferred by combat
     elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
         local unit, _, spellID = ...
         if unit == "player" then observeCast(spellID) end

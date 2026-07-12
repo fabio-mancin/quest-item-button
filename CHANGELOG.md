@@ -5,6 +5,16 @@ All notable changes to QuestItemButton are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); this project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.9.0] - 2026-07-12
+
+### Added
+- Optional trigger keybind: bind a key (under Display → "Trigger key") to fire
+  the quest item, same as clicking the button. Uses an override binding, applied
+  out of combat (combat-time changes reapply on `PLAYER_REGEN_ENABLED`). Clear
+  the binding to unbind.
+- New `Keybind.lua`; its pure `normalize` is unit-tested (`spec/keybind_spec.lua`),
+  the secure binding is verified in-game.
+
 ## [0.8.0] - 2026-07-12
 
 ### Added

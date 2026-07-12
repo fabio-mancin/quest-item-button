@@ -2,6 +2,7 @@ local addonName, addon = ...
 local Debug = addon.Debug
 local Config = addon.Config
 local Alert = addon.Alert
+local Keybind = addon.Keybind
 
 -- WoW shell: our own secure action button styled like the Retail
 -- QuestItemButton. Fires the bag quest item via type="item".
@@ -199,9 +200,17 @@ local function create()
     end)
 
     restorePosition(button)
+    Button.applyKeybind()
 end
 
 -- ---- visuals (allowed in combat: own regions, not protected ops) --------
+
+-- (Re)apply the configured trigger keybind. Returns false if deferred by combat
+-- (main retries on PLAYER_REGEN_ENABLED). Safe to call before/after create().
+function Button.applyKeybind()
+    if not button then return end
+    return Keybind.apply(button, Config.get("keybind"))
+end
 
 -- Reset to default anchor and persist (used by the options "Reset position").
 function Button.resetPosition()

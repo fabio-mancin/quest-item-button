@@ -80,6 +80,16 @@ local function buildOptions()
                         function() Button.updateStyle() end),
                     locked = cfgToggle(2, "Lock button position", "locked",
                         "Prevent dragging the button."),
+                    keybind = {
+                        type = "keybinding", order = 2.5, width = "full",
+                        name = "Trigger key",
+                        desc = "Bind a key to fire the quest item. Clear to unbind. Applies out of combat.",
+                        get = function() return Config.get("keybind") end,
+                        set = function(_, val)
+                            Config.set("keybind", val)
+                            Button.applyKeybind()
+                        end,
+                    },
                     resetpos = {
                         type = "execute", order = 3, name = "Reset position",
                         desc = "Move the button back to the default location.",

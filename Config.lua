@@ -8,6 +8,7 @@ local Debug = addon.Debug
 local DEFAULTS = {
     pos = nil,               -- {point, x, y}; nil = default center-ish anchor
     locked = false,          -- button drag locked
+    keybind = nil,           -- optional key that fires the quest item (override binding)
     hideStyle = false,       -- hide the Blizzard QuestItemButton ring (minimal look)
     alertGlow = true,        -- glow the button briefly when it first appears
     alertSound = false,      -- play a sound when the button first appears
