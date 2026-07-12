@@ -23,6 +23,10 @@ addon.Data = Data
 
 Data.overrides = {
     -- [11162] = { zone = "Netherstorm" },  -- example: Conjurer Luminrath
+    -- Fires over Skettis: logged under subzone "Skettis", but used while flying
+    -- all over Terokkar (Skettis / Blackwind Lake / Veil Ar'ak) — gate on the
+    -- whole real zone so it stays available as the subzone flips.
+    [11008] = { zone = "Terokkar Forest" },
 }
 
 Data.byItem = {
