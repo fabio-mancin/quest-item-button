@@ -37,6 +37,22 @@ local function blurb(text)
     return { type = "description", order = 0, name = text .. "\n", fontSize = "medium" }
 end
 
+-- Re-apply what we can after a profile switch; a /reload guarantees the rest.
+local function applyProfile()
+    refresh()
+    if Button.updateStyle then Button.updateStyle() end
+    if Button.applyKeybind then Button.applyKeybind() end
+end
+
+-- profile names other than the active one, as an AceConfig select `values` map
+local function otherProfiles()
+    local t, current = {}, Config.currentProfile()
+    for _, n in ipairs(Config.profileNames()) do
+        if n ~= current then t[n] = n end
+    end
+    return t
+end
+
 -- Build the per-quest enable list from whatever usable quest items are in the
 -- log right now (checked = shown).
 local function questArgs()
@@ -166,6 +182,50 @@ local function buildOptions()
                 type = "group", order = 3, name = "Quests in log",
                 desc = "Toggle which usable quest items may show.",
                 args = questArgs(),  -- rebuilt each open (buildOptions is a function)
+            },
+            profiles = {
+                type = "group", order = 4, name = "Profiles",
+                args = {
+                    intro = blurb("Settings are saved per profile; each character can use its own. A /reload fully applies a switch."),
+                    current = {
+                        type = "select", order = 1, width = "full", name = "Active profile",
+                        desc = "Which profile this character uses.",
+                        values = function()
+                            local t = {}
+                            for _, n in ipairs(Config.profileNames()) do t[n] = n end
+                            return t
+                        end,
+                        get = function() return Config.currentProfile() end,
+                        set = function(_, val) Config.setProfile(val); applyProfile() end,
+                    },
+                    new = {
+                        type = "input", order = 2, name = "New profile",
+                        desc = "Create a profile with this name and switch to it.",
+                        get = function() return "" end,
+                        set = function(_, val) Config.setProfile(val); applyProfile() end,
+                    },
+                    copy = {
+                        type = "select", order = 3, name = "Copy from",
+                        desc = "Copy another profile's settings into the current one.",
+                        values = otherProfiles,
+                        disabled = function() return not next(otherProfiles()) end,
+                        get = function() end,
+                        set = function(_, val) Config.copyProfile(val); applyProfile() end,
+                    },
+                    delete = {
+                        type = "select", order = 4, name = "Delete profile",
+                        desc = "Delete a profile (not the active one).",
+                        values = otherProfiles,
+                        disabled = function() return not next(otherProfiles()) end,
+                        get = function() end,
+                        set = function(_, val) Config.deleteProfile(val); applyProfile() end,
+                    },
+                    reset = {
+                        type = "execute", order = 5, name = "Reset profile",
+                        desc = "Reset the active profile to defaults.",
+                        func = function() Config.resetProfile(); applyProfile() end,
+                    },
+                },
             },
         },
     }

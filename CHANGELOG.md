@@ -5,6 +5,21 @@ All notable changes to QuestItemButton are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); this project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.11.0] - 2026-07-12
+
+### Added
+- Configuration profiles: settings are now stored per named profile, and each
+  character picks which profile it uses. New "Profiles" tab in options —
+  switch, create, copy-from, delete, and reset. A `/reload` fully applies a
+  switch. Minimap-icon position stays account-wide.
+
+### Changed
+- `Config` is now `require()`-able and unit-tested (`spec/config_spec.lua`):
+  default merge, account-vs-profile scoping, profile management, and a one-time
+  migration that lifts the old flat SavedVariable into `profiles.Default`.
+- Profiles are implemented natively over the existing SavedVariable (no new
+  embedded library), which keeps the Config funnel WoW-free and testable.
+
 ## [0.10.0] - 2026-07-12
 
 ### Added
