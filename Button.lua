@@ -86,12 +86,15 @@ end
 -- Right-click menu: list every usable quest item in bags; picking one pins it
 -- (Config.pinned) so it beats all pickers while carried. Re-picking the pinned
 -- item, or "Auto", clears the pin. Insecure UI — safe to open anytime.
+--
+-- Built on the UIDropDownMenu primitives directly, NOT EasyMenu: EasyMenu was a
+-- FrameXML helper that isn't present in every client build, so calling it errors
+-- out silently when scriptErrors are off (which looked like "nothing happens").
 local menuFrame
-local function openMenu(anchor)
-    local Scanner = addon.Scanner
+local function buildMenu()
     local pinned = Config.get("pinned")
     local menu = { { text = "Show quest item", isTitle = true, notCheckable = true } }
-    for _, c in ipairs(Scanner.scan()) do
+    for _, c in ipairs(addon.Scanner.scan()) do
         local qid = c.questID
         menu[#menu + 1] = {
             text = c.itemName,
@@ -108,8 +111,19 @@ local function openMenu(anchor)
         menu[#menu + 1] = { text = "Auto (clear pin)", notCheckable = true,
             func = function() Config.set("pinned", nil); if addon.refresh then addon.refresh() end end }
     end
+    return menu
+end
+
+local function openMenu(anchor)
     menuFrame = menuFrame or CreateFrame("Frame", "QuestItemButtonMenu", UIParent, "UIDropDownMenuTemplate")
-    EasyMenu(menu, menuFrame, anchor, 0, 0, "MENU")
+    local menu = buildMenu()
+    Debug.log("button", "right-click menu: %d entr%s", #menu, #menu == 1 and "y" or "ies")
+    UIDropDownMenu_Initialize(menuFrame, function(_, level)
+        for _, info in ipairs(menu) do
+            UIDropDownMenu_AddButton(info, level)
+        end
+    end, "MENU")
+    ToggleDropDownMenu(1, nil, menuFrame, anchor, 0, 0)
 end
 
 local function create()
@@ -155,6 +169,7 @@ local function create()
     -- BOTH edges, so without this the menu opens on press then toggles shut on
     -- release -> looks broken.
     button:SetScript("PostClick", function(self, mouseButton, down)
+        Debug.log("button", "postclick %s down=%s", tostring(mouseButton), tostring(down))
         if mouseButton == "RightButton" and not down then
             openMenu(self)
         end

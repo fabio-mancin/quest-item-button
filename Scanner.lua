@@ -9,6 +9,11 @@ local Debug = addon.Debug
 local Scanner = {}
 addon.Scanner = Scanner
 
+-- Bag API moved to C_Container in later builds; support both.
+local NumSlots  = (C_Container and C_Container.GetContainerNumSlots) or GetContainerNumSlots
+local ItemID    = (C_Container and C_Container.GetContainerItemID) or GetContainerItemID
+local QuestInfo = (C_Container and C_Container.GetContainerItemQuestInfo) or GetContainerItemQuestInfo
+
 -- returns list of { questID, itemID, itemName, headerZone, questIndex }
 function Scanner.scan()
     local candidates = {}
@@ -64,6 +69,36 @@ function Scanner.scan()
             }
             Debug.log("quest", "byItem candidate item %s q%s zone=%s",
                 tostring(itemID), tostring(questID), tostring(q.headerZone))
+        end
+    end
+
+    -- Automatic bag hatch: usable quest items the game never flags (no special-
+    -- item button) and that aren't hand-curated in byItem. Tie the item to its
+    -- quest via the bag slot's own quest info, so the right-click picker can
+    -- surface — and pin — items auto-detection misses. Gated on a use effect
+    -- (GetItemSpell) since the button fires type="item"; keyed by the log quest
+    -- so pin/tooltip/cooldown/range all keep working. Items whose slot reports
+    -- no questID (questLog[qid] nil) are simply skipped — no bogus keys.
+    if NumSlots and ItemID and QuestInfo then
+        for bag = 0, NUM_BAG_SLOTS do
+            for slot = 1, (NumSlots(bag) or 0) do
+                local itemID = ItemID(bag, slot)
+                local isQuest, qid = QuestInfo(bag, slot)
+                if type(isQuest) == "table" then isQuest, qid = isQuest.isQuestItem, isQuest.questID end  -- C_Container returns a struct
+                local q = qid and questLog[qid]
+                if itemID and isQuest and q and not emitted[qid] and GetItemSpell(itemID) then
+                    candidates[#candidates + 1] = {
+                        questID = qid,
+                        itemID = itemID,
+                        itemName = GetItemInfo(itemID) or ("item:" .. itemID),
+                        headerZone = q.headerZone,
+                        questIndex = q.index,
+                    }
+                    emitted[qid] = true
+                    Debug.log("quest", "bag candidate item %s q%s zone=%s",
+                        tostring(itemID), tostring(qid), tostring(q.headerZone))
+                end
+            end
         end
     end
 

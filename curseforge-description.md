@@ -27,6 +27,10 @@ Include your client version, the quest, and the item — it helps a lot.
 
 ## Changelog
 
+### 0.12.0
+- **Fixed:** Right-click pick menu now opens (it relied on `EasyMenu`, absent in this client, and failed silently).
+- **Added:** The menu now also lists usable quest items the game never flags — any bag item tied to a quest in your log — so they're selectable and pinnable without a manual data entry.
+
 ### 0.11.0
 - **Added:** Per-character configuration profiles — switch, create, copy, delete, and reset in the new Profiles tab. A `/reload` fully applies a switch.
 

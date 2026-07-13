@@ -5,6 +5,21 @@ All notable changes to QuestItemButton are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/); this project
 adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.0] - 2026-07-13
+
+### Fixed
+- Right-click pick menu never opened: it relied on `EasyMenu`, a FrameXML helper
+  absent in this client build, so the call errored out silently (invisible unless
+  `scriptErrors` were on). Rebuilt on the `UIDropDownMenu_Initialize` /
+  `ToggleDropDownMenu` primitives so it works regardless of `EasyMenu`.
+
+### Added
+- Right-click menu now lists usable quest items the game never flags: `Scanner`
+  scans the bags and emits any item whose slot reports a quest that's in your log
+  and has a use effect (`GetItemSpell`), so they're selectable and pinnable
+  without a hand-curated `byItem` entry. Items whose slot reports no questID are
+  still `byItem`/learn-only.
+
 ## [0.11.0] - 2026-07-12
 
 ### Added
